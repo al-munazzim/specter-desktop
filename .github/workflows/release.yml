@@ -276,7 +276,6 @@ jobs:
           cp -R ../../src/cryptoadvance/specter/static/fonts \
                 ../../src/cryptoadvance/specter/static/output.css \
                 ../../src/cryptoadvance/specter/static/typography.css .
-          npm i
           npm run dist -- --linux
           cd ../..
 
@@ -348,7 +347,6 @@ jobs:
           cp -R ../../src/cryptoadvance/specter/static/fonts \
                 ../../src/cryptoadvance/specter/static/output.css \
                 ../../src/cryptoadvance/specter/static/typography.css .
-          npm i
           npm run dist -- --win
           cd ../..
 
@@ -402,7 +400,7 @@ jobs:
           path: ./release-artifacts
 
       - name: Import code signing certificate
-        if: env.APPLE_CERTIFICATE != ''
+        if: secrets.APPLE_CERTIFICATE_BASE64 != ''
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -466,7 +464,6 @@ jobs:
           cp -R ../../src/cryptoadvance/specter/static/fonts \
                 ../../src/cryptoadvance/specter/static/output.css \
                 ../../src/cryptoadvance/specter/static/typography.css .
-          npm i
           npm run dist -- --mac
           cd ../..
         env:
@@ -535,7 +532,7 @@ jobs:
           cd ..
 
       - name: GPG sign checksums
-        if: env.GPG_PRIVATE_KEY != ''
+        if: secrets.GPG_PRIVATE_KEY != ''
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
