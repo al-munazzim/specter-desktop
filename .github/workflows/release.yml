@@ -310,21 +310,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
       - name: Install system dependencies
         run: |
-          apt-get update && apt-get install -y unzip libusb-1.0-0-dev libudev-dev
-
-      - name: Install Python packages
-        run: |
-          python3 -m pip install virtualenv
-          python3 -m virtualenv --python=python3 .buildenv
-          . .buildenv/bin/activate
-          python3 -m pip install -e ".[test]"
-          python3 -m pip install -e .
+          apt-get update && apt-get install -y unzip
 
       - name: Download specterd Windows artifact
         uses: actions/download-artifact@v4
