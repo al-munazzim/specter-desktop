@@ -164,10 +164,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - runner: macos-15-large  # Intel (macos-13 retired)
-            arch: x64
-            arch_label: osx_x64
-          - runner: macos-14      # Apple Silicon
+          # x64 builds require a paid macOS runner (macos-13 retired, macos-15-large is paid)
+          # Uncomment when org has paid plan:
+          # - runner: macos-15-large
+          #   arch: x64
+          #   arch_label: osx_x64
+          - runner: macos-14      # Apple Silicon (free tier)
             arch: arm64
             arch_label: osx_arm64
     steps:
