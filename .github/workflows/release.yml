@@ -121,7 +121,8 @@ jobs:
           pip install virtualenv
           virtualenv --python=python${{ env.PYTHON_VERSION }} .buildenv
           source .buildenv/Scripts/activate
-          pip install -r requirements.txt
+          pip install colorama  # Windows-only transitive dep of click, not in requirements.txt
+          pip install -r requirements.txt --require-hashes
           pip install -e ".[test]"
           pip install build==0.10.0
           python -m build
