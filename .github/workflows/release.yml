@@ -541,11 +541,61 @@ jobs:
             --pinentry-mode loopback --detach-sign --armor SHA256SUMS
           cd ..
 
+      - name: Generate release body
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          REPO_URL="${{ github.server_url }}/${{ github.repository }}"
+          DL="${REPO_URL}/releases/download/${VERSION}"
+
+          cat > release-body.md << 'HEADER'
+          *Please create a full backup* before migrating or any major internal changes like switching to an electrum based installation. You can easily create a backup in Settings --> Backup Specter (zip file).
+
+          ## Artifacts
+
+          Specter is available in several forms: as a GUI application, as a binary that can be executed like a web app, and as a PyPI package. Additionally, Specter is available as a Docker image via the awesome [Chiang Mai LN devs](https://github.com/lncm/docker-specter-desktop).
+
+          Signed hashsum files are available for all binaries.
+          HEADER
+
+          # Strip leading whitespace from heredoc
+          sed -i 's/^          //' release-body.md
+
+          cat >> release-body.md << EOF
+
+          ## GUI Application
+
+          This is a GUI application with a windowed interface, which includes the Specter server.
+          Supported platforms: [Windows](${DL}/Specter-Setup-${VERSION}.exe), [MacOS](${DL}/Specter-${VERSION}.dmg), [Linux (x86_64)](${DL}/specter_desktop-${VERSION}-x86_64-linux-gnu.tar.gz)
+
+          **Note on Linux**: you need to set up udev rules (included in the archive). Check out the [readme](https://github.com/cryptoadvance/specter-desktop/blob/master/udev/README.md#usage).
+
+          **Note on macOS**: The current build supports macOS Catalina (10.15) or higher. If you'd like to run Specter on an older macOS version, you can [install Specter from Pip](https://github.com/cryptoadvance/specter-desktop#installing-specter-from-pip).
+
+          ## specterd
+
+          Specterd is a command-line program that runs only the Specter server, behaving like a traditional web application.
+          Supported platforms: [Windows](${DL}/specterd-${VERSION}-win64.zip), [MacOS (arm64)](${DL}/specterd-${VERSION}-osx_arm64.zip), [Linux (x86_64)](${DL}/specterd-${VERSION}-x86_64-linux-gnu.zip)
+
+          ## PyPI Packages
+
+          If you're an experienced Python user and/or developer, you might appreciate the [PyPI packages](https://pypi.org/project/cryptoadvance.specter/) which are also available on our GitHub release page.
+
+          ## Signatures and hashes
+
+          [SHA256SUMS](${DL}/SHA256SUMS) file contains sha256 hashes of all binary files.
+
+          ## Release notes
+
+          EOF
+
+          # Append auto-generated changelog
+          echo "**Full Changelog**: ${REPO_URL}/compare/$(git describe --tags --abbrev=0 HEAD^)...${VERSION}" >> release-body.md 2>/dev/null || true
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: release-files/*
-          generate_release_notes: true
+          body_path: release-body.md
           draft: true  # Draft first, review before publishing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
