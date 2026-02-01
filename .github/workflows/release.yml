@@ -164,7 +164,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - runner: macos-13      # Intel
+          - runner: macos-15-large  # Intel (macos-13 retired)
             arch: x64
             arch_label: osx_x64
           - runner: macos-14      # Apple Silicon
