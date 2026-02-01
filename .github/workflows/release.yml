@@ -320,11 +320,11 @@ jobs:
 
       - name: Install Python packages
         run: |
-          pip3 install virtualenv
+          python3 -m pip install virtualenv
           python3 -m virtualenv --python=python3 .buildenv
           . .buildenv/bin/activate
-          pip3 install -e ".[test]"
-          pip3 install -e .
+          python3 -m pip install -e ".[test]"
+          python3 -m pip install -e .
 
       - name: Download specterd Windows artifact
         uses: actions/download-artifact@v4
