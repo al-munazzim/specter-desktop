@@ -333,7 +333,10 @@ jobs:
           cd ../..
 
       - name: Build Electron app
+        env:
+          HOME: /tmp/electron-home
         run: |
+          mkdir -p $HOME
           cd pyinstaller/electron
           cp -R ../../src/cryptoadvance/specter/static/fonts \
                 ../../src/cryptoadvance/specter/static/output.css \
