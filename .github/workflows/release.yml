@@ -323,14 +323,13 @@ jobs:
       - name: Prepare Electron build
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
-          . .buildenv/bin/activate
           mkdir -p pyinstaller/dist
           cd release-artifacts
           unzip specterd-${VERSION}-win64.zip -d ../pyinstaller/dist/
           cd ..
           cd pyinstaller/electron
           npm ci
-          node ./set-version $VERSION ../dist/specterd.exe
+          node ./set-version.js $VERSION ../dist/specterd.exe
           cd ../..
 
       - name: Build Electron app
