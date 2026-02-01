@@ -368,6 +368,8 @@ jobs:
     needs:
       - build-specterd-macos
     runs-on: macos-14  # Apple Silicon for universal builds
+    env:
+      HAVE_APPLE_CERT: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -400,7 +402,7 @@ jobs:
           path: ./release-artifacts
 
       - name: Import code signing certificate
-        if: secrets.APPLE_CERTIFICATE_BASE64 != ''
+        if: env.HAVE_APPLE_CERT == 'true'
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -502,6 +504,8 @@ jobs:
       - build-electron-windows
       - build-electron-macos
     runs-on: ubuntu-latest
+    env:
+      HAVE_GPG_KEY: ${{ secrets.GPG_PRIVATE_KEY != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -532,7 +536,7 @@ jobs:
           cd ..
 
       - name: GPG sign checksums
-        if: secrets.GPG_PRIVATE_KEY != ''
+        if: env.HAVE_GPG_KEY == 'true'
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
