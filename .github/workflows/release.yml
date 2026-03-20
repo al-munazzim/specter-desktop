@@ -536,7 +536,9 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          # Extract the key ID from the imported key
+          # Extract the key fingerprint and set ultimate trust
+          FPR=$(gpg --list-secret-keys --with-colons 2>/dev/null | grep '^fpr' | head -1 | cut -d: -f10)
+          echo "${FPR}:6:" | gpg --import-ownertrust
           KEY_ID=$(gpg --list-secret-keys --keyid-format long --with-colons 2>/dev/null | grep '^sec' | head -1 | cut -d: -f5)
           echo "Signing with key: $KEY_ID"
           cd release-files
