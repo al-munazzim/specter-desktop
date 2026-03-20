@@ -4,35 +4,56 @@ on:
   push:
     branches:
       - test-gpg-signing
+  workflow_dispatch:
 
 jobs:
   signertest:
     name: GPG signing test
     runs-on: ubuntu-latest
-    env:
-      HAVE_GPG_KEY: ${{ secrets.GPG_PRIVATE_KEY != '' }}
     steps:
-      - name: Check secrets
-        run: |
-          echo "GPG key configured: $HAVE_GPG_KEY"
-          if [ "$HAVE_GPG_KEY" != "true" ]; then
-            echo "::error::GPG_PRIVATE_KEY secret not set"
-            exit 1
-          fi
-
       - name: GPG version info
         run: gpg --version | head -3
 
       - name: Create test file
-        run: |
-          echo "deadbeef  specter-desktop-test.tar.gz" > SHA256SUMS
-          cat SHA256SUMS
+        run: echo "deadbeef  specter-desktop-test.tar.gz" > SHA256SUMS
 
-      - name: GPG sign
-        if: env.HAVE_GPG_KEY == 'true'
+      - name: Import test key and sign
         env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_PASSPHRASE: testpassphrase123
+          GPG_PRIVATE_KEY: |
+            -----BEGIN PGP PRIVATE KEY BLOCK-----
+
+            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
+            J0M8x6I=
+            =yW0Q
+            -----END PGP PRIVATE KEY BLOCK-----
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
           # Set ultimate trust so GPG will use the key on a fresh runner
