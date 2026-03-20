@@ -11,6 +11,14 @@ jobs:
     name: GPG signing test
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
       - name: GPG version info
         run: gpg --version | head -3
 
@@ -73,3 +81,54 @@ jobs:
         run: |
           gpg --verify SHA256SUMS.asc SHA256SUMS
           echo "✅ Signature verified"
+
+  version-test:
+    name: Version derivation test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install tools
+        run: pip install build setuptools_scm
+
+      - name: Test version derivation
+        run: |
+          echo "=== Git tags on this commit ==="
+          git tag --points-at HEAD --sort=-version:refname || echo "(no tags)"
+
+          echo ""
+          echo "=== git describe ==="
+          git describe --tags --long --match 'v*' || echo "(no match)"
+
+          echo ""
+          echo "=== setuptools_scm raw version ==="
+          python3 -c "from setuptools_scm import get_version; print(get_version(root='.'))"
+
+          echo ""
+          echo "=== Simulating tag-based version (as in release workflow) ==="
+          # Simulate different tags
+          for TAG in v2.1.5-pre1 v2.1.5-pre2 v2.1.5 v3.0.0-pre1; do
+            PEP=$(echo "${TAG#v}" | sed 's/-pre/rc/')
+            echo "  Tag $TAG -> PEP 440: $PEP"
+          done
+
+          echo ""
+          echo "=== Build with PRETEND_VERSION ==="
+          SETUPTOOLS_SCM_PRETEND_VERSION=2.1.5rc2 python3 -m build 2>&1 | tail -5
+          echo ""
+          echo "=== Built artifacts ==="
+          ls -la dist/
+          echo ""
+          # Verify the version in the filename
+          if ls dist/*2.1.5rc2* >/dev/null 2>&1; then
+            echo "✅ Version 2.1.5rc2 correctly embedded in artifacts"
+          else
+            echo "❌ Version mismatch in artifacts!"
+            exit 1
+          fi
