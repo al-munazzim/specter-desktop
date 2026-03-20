@@ -650,3 +650,4 @@ jobs:
             -d "{\"ref\":\"master\", \"inputs\": {\"tag\": \"${VERSION}\"}}"
 
           echo "Triggered lncm/docker-specter-desktop build for ${VERSION}"
+# trigger rebuild
