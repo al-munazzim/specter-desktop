@@ -94,9 +94,16 @@
         if(coldcardUsb == 1){
             return true;
         }
-        // Avoid overwriting the resolver for a warning that is already visible.
+        // If the warning is already visible, chain onto the existing resolver so
+        // multiple callers can await the same user decision.
         if(coldcardNoticeResolver != null){
-            return false;
+            return await new Promise((resolve) => {
+                const previousResolver = coldcardNoticeResolver;
+                coldcardNoticeResolver = (accepted) => {
+                    previousResolver(accepted);
+                    resolve(accepted);
+                };
+            });
         }
         coldcardNoticeAccepted = false;
         return await new Promise((resolve) => {
